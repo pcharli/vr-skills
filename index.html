@@ -1,15 +1,90 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Visite 360 cepegra</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
   </head>
-  <body>
-    <a-scene>
-      <a-box position="-1 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
-      <a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
-      <a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
-      <a-sky color="#ECECEC"></a-sky>
-      <a-entity geometry="primitive: cone" position="0.48167 0.7337 -0.87373"></a-entity>
-    </a-scene>
-  </body>
+</html>
+<body>
+  <a-scene renderer="antialias: true; colorManagement: true;" loading-screen="dotsColor: orange; backgroundColor: black">
+    <a-assets>
+      <img id="demoscene1" src="assets/textures/skybox.jpg" preload crossorigin></img>
+      <img id="demoscene2" src="assets/textures/skybox2.jpg" preload crossorigin></img>
+      <audio id="demosound1" src="assets/sounds/seashore.flac" preload crossorigin></audio>
+      <audio id="demosound2" src="assets/sounds/song.wav" preload crossorigin></audio>
+
+      <a-mixin
+          id="viewsphere"
+          position="0 -100 0"
+          geometry="primitive: sphere; radius:20; segmentsWidth:128; segmentsHeight:128"
+          material="shader:flat; side: back; repeat:-1 1;"
+          sound="autoplay:true; loop:true; maxDistance:50; poolSize:10"
+        ></a-mixin>
+
+
+        <a-mixin
+        id="marker" 
+        position="0 0 10"
+        geometry="primitive: circle; radius:2"
+        material="shader:flat; color:red; opacity:0.5;side:double;"
+        animation="property:geometry.radius; to:1.5; dur:1000; loop:true;dir:alternate;"
+        event-set__enter="_event: mouseenter; scale:1.5 1.5 1.5;"
+        event-set__leave="_event: mouseleave; scale:1 1 1;"
+        ></a-mixin>
+
+    </a-assets>
+
+    <!-- TEST -->
+    <a-entity id="view_1" mixin="viewsphere" material="src: #demoscene1;" position="0 0 0" sound="src: #demosound1" autoplaysound>
+      
+      <a-entity position="0 0 0" rotation="5 161.5 0">
+        <a-entity
+          mixin="marker"
+          event-set__hideview="_event: mousedown; _target:#view_1; position:0 -100 0;"
+          event-set__showview="_event: mousedown; _target:#view_2; position:0 0 0;" 
+          event-set__orient="_event: mousedown; _target:#rig; rotation:0 -100 0;"
+        >
+        </a-entity>
+      </a-entity>
+
+
+    </a-entity>
+    
+    <a-entity id="view_2" mixin="viewsphere" material="src: #demoscene2;" sound="src: #demosound2;" autoplaysound></a-entity>
+
+<!-- RIG -->
+<a-entity id="rig" rotation="0 0 0">
+  <!-- HMD -->
+  <a-entity id="hmd" camera="far:20" look-controls   position="0 0 0">
+    <a-entity cursor="rayOrigin: mouse" raycaster="objects:[mixin=marker]; far:20;"></a-entity>
+  </a-entity>
+
+  <!-- RIGHT CONTROLLER -->
+  <a-entity
+  laser-controls="hand: right;"
+  raycaster="lineColor: red; objets: [mixin=marker]; far:20"
+  ></a-entity>
+
+  <!-- LEFT CONTROLLER -->
+  <a-entity
+    laser-controls="hand: left;"
+    raycaster="lineColor: green; objets: [mixin=marker]; far:20"
+  ></a-entity>
+
+</a-entity>
+
+  </a-scene>
+
+  <script>
+    document.addEventListener("click", ()=>{
+      var entity = document.querySelector('[autoplaysound]');
+      entity.components.sound.playSound();
+
+    })
+  </script>
+</body>
 </html>
